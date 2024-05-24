@@ -1,0 +1,471 @@
+Grammar
+
+    0 $accept: program $end
+
+    1 program: program term
+    2        | term
+
+    3 term: OP
+    4     | EQ
+    5     | GEQ
+    6     | LEQ
+    7     | NEQ
+    8     | AND
+    9     | IF
+   10     | THEN
+   11     | ELSE
+   12     | PRECOMPILER
+   13     | NUMCONST
+   14     | CHARCONST
+   15     | STRINGCONST
+   16     | ID
+   17     | INT
+   18     | CHAR
+   19     | BOOL
+   20     | DEC
+   21     | INC
+   22     | BREAK
+   23     | BY
+   24     | DO
+   25     | BOOLCONST
+   26     | FOR
+   27     | NOT
+   28     | OR
+   29     | RETURN
+   30     | STATIC
+   31     | WHILE
+   32     | TO
+   33     | MIN
+   34     | MAX
+   35     | ADDASS
+   36     | SUBASS
+   37     | MULASS
+   38     | DIVASS
+   39     | ERROR
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+OP (258) 3
+NEQ (259) 7
+EQ (260) 4
+LEQ (261) 6
+GEQ (262) 5
+AND (263) 8
+OR (264) 28
+NOT (265) 27
+PRECOMPILER (266) 12
+NUMCONST (267) 13
+CHARCONST (268) 14
+STRINGCONST (269) 15
+BOOLCONST (270) 25
+ERROR (271) 39
+ID (272) 16
+IF (273) 9
+THEN (274) 10
+ELSE (275) 11
+INT (276) 17
+CHAR (277) 18
+BOOL (278) 19
+DEC (279) 20
+INC (280) 21
+WHILE (281) 31
+FOR (282) 26
+TO (283) 32
+BY (284) 23
+DO (285) 24
+RETURN (286) 29
+BREAK (287) 22
+STATIC (288) 30
+MIN (289) 33
+MAX (290) 34
+MULASS (291) 37
+DIVASS (292) 38
+ADDASS (293) 35
+SUBASS (294) 36
+
+
+Nonterminals, with rules where they appear
+
+$accept (40)
+    on left: 0
+program (41)
+    on left: 1 2, on right: 0 1
+term (42)
+    on left: 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+    24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39, on right: 1 2
+
+
+State 0
+
+    0 $accept: . program $end
+
+    OP           shift, and go to state 1
+    NEQ          shift, and go to state 2
+    EQ           shift, and go to state 3
+    LEQ          shift, and go to state 4
+    GEQ          shift, and go to state 5
+    AND          shift, and go to state 6
+    OR           shift, and go to state 7
+    NOT          shift, and go to state 8
+    PRECOMPILER  shift, and go to state 9
+    NUMCONST     shift, and go to state 10
+    CHARCONST    shift, and go to state 11
+    STRINGCONST  shift, and go to state 12
+    BOOLCONST    shift, and go to state 13
+    ERROR        shift, and go to state 14
+    ID           shift, and go to state 15
+    IF           shift, and go to state 16
+    THEN         shift, and go to state 17
+    ELSE         shift, and go to state 18
+    INT          shift, and go to state 19
+    CHAR         shift, and go to state 20
+    BOOL         shift, and go to state 21
+    DEC          shift, and go to state 22
+    INC          shift, and go to state 23
+    WHILE        shift, and go to state 24
+    FOR          shift, and go to state 25
+    TO           shift, and go to state 26
+    BY           shift, and go to state 27
+    DO           shift, and go to state 28
+    RETURN       shift, and go to state 29
+    BREAK        shift, and go to state 30
+    STATIC       shift, and go to state 31
+    MIN          shift, and go to state 32
+    MAX          shift, and go to state 33
+    MULASS       shift, and go to state 34
+    DIVASS       shift, and go to state 35
+    ADDASS       shift, and go to state 36
+    SUBASS       shift, and go to state 37
+
+    program  go to state 38
+    term     go to state 39
+
+
+State 1
+
+    3 term: OP .
+
+    $default  reduce using rule 3 (term)
+
+
+State 2
+
+    7 term: NEQ .
+
+    $default  reduce using rule 7 (term)
+
+
+State 3
+
+    4 term: EQ .
+
+    $default  reduce using rule 4 (term)
+
+
+State 4
+
+    6 term: LEQ .
+
+    $default  reduce using rule 6 (term)
+
+
+State 5
+
+    5 term: GEQ .
+
+    $default  reduce using rule 5 (term)
+
+
+State 6
+
+    8 term: AND .
+
+    $default  reduce using rule 8 (term)
+
+
+State 7
+
+   28 term: OR .
+
+    $default  reduce using rule 28 (term)
+
+
+State 8
+
+   27 term: NOT .
+
+    $default  reduce using rule 27 (term)
+
+
+State 9
+
+   12 term: PRECOMPILER .
+
+    $default  reduce using rule 12 (term)
+
+
+State 10
+
+   13 term: NUMCONST .
+
+    $default  reduce using rule 13 (term)
+
+
+State 11
+
+   14 term: CHARCONST .
+
+    $default  reduce using rule 14 (term)
+
+
+State 12
+
+   15 term: STRINGCONST .
+
+    $default  reduce using rule 15 (term)
+
+
+State 13
+
+   25 term: BOOLCONST .
+
+    $default  reduce using rule 25 (term)
+
+
+State 14
+
+   39 term: ERROR .
+
+    $default  reduce using rule 39 (term)
+
+
+State 15
+
+   16 term: ID .
+
+    $default  reduce using rule 16 (term)
+
+
+State 16
+
+    9 term: IF .
+
+    $default  reduce using rule 9 (term)
+
+
+State 17
+
+   10 term: THEN .
+
+    $default  reduce using rule 10 (term)
+
+
+State 18
+
+   11 term: ELSE .
+
+    $default  reduce using rule 11 (term)
+
+
+State 19
+
+   17 term: INT .
+
+    $default  reduce using rule 17 (term)
+
+
+State 20
+
+   18 term: CHAR .
+
+    $default  reduce using rule 18 (term)
+
+
+State 21
+
+   19 term: BOOL .
+
+    $default  reduce using rule 19 (term)
+
+
+State 22
+
+   20 term: DEC .
+
+    $default  reduce using rule 20 (term)
+
+
+State 23
+
+   21 term: INC .
+
+    $default  reduce using rule 21 (term)
+
+
+State 24
+
+   31 term: WHILE .
+
+    $default  reduce using rule 31 (term)
+
+
+State 25
+
+   26 term: FOR .
+
+    $default  reduce using rule 26 (term)
+
+
+State 26
+
+   32 term: TO .
+
+    $default  reduce using rule 32 (term)
+
+
+State 27
+
+   23 term: BY .
+
+    $default  reduce using rule 23 (term)
+
+
+State 28
+
+   24 term: DO .
+
+    $default  reduce using rule 24 (term)
+
+
+State 29
+
+   29 term: RETURN .
+
+    $default  reduce using rule 29 (term)
+
+
+State 30
+
+   22 term: BREAK .
+
+    $default  reduce using rule 22 (term)
+
+
+State 31
+
+   30 term: STATIC .
+
+    $default  reduce using rule 30 (term)
+
+
+State 32
+
+   33 term: MIN .
+
+    $default  reduce using rule 33 (term)
+
+
+State 33
+
+   34 term: MAX .
+
+    $default  reduce using rule 34 (term)
+
+
+State 34
+
+   37 term: MULASS .
+
+    $default  reduce using rule 37 (term)
+
+
+State 35
+
+   38 term: DIVASS .
+
+    $default  reduce using rule 38 (term)
+
+
+State 36
+
+   35 term: ADDASS .
+
+    $default  reduce using rule 35 (term)
+
+
+State 37
+
+   36 term: SUBASS .
+
+    $default  reduce using rule 36 (term)
+
+
+State 38
+
+    0 $accept: program . $end
+    1 program: program . term
+
+    $end         shift, and go to state 40
+    OP           shift, and go to state 1
+    NEQ          shift, and go to state 2
+    EQ           shift, and go to state 3
+    LEQ          shift, and go to state 4
+    GEQ          shift, and go to state 5
+    AND          shift, and go to state 6
+    OR           shift, and go to state 7
+    NOT          shift, and go to state 8
+    PRECOMPILER  shift, and go to state 9
+    NUMCONST     shift, and go to state 10
+    CHARCONST    shift, and go to state 11
+    STRINGCONST  shift, and go to state 12
+    BOOLCONST    shift, and go to state 13
+    ERROR        shift, and go to state 14
+    ID           shift, and go to state 15
+    IF           shift, and go to state 16
+    THEN         shift, and go to state 17
+    ELSE         shift, and go to state 18
+    INT          shift, and go to state 19
+    CHAR         shift, and go to state 20
+    BOOL         shift, and go to state 21
+    DEC          shift, and go to state 22
+    INC          shift, and go to state 23
+    WHILE        shift, and go to state 24
+    FOR          shift, and go to state 25
+    TO           shift, and go to state 26
+    BY           shift, and go to state 27
+    DO           shift, and go to state 28
+    RETURN       shift, and go to state 29
+    BREAK        shift, and go to state 30
+    STATIC       shift, and go to state 31
+    MIN          shift, and go to state 32
+    MAX          shift, and go to state 33
+    MULASS       shift, and go to state 34
+    DIVASS       shift, and go to state 35
+    ADDASS       shift, and go to state 36
+    SUBASS       shift, and go to state 37
+
+    term  go to state 41
+
+
+State 39
+
+    2 program: term .
+
+    $default  reduce using rule 2 (program)
+
+
+State 40
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+State 41
+
+    1 program: program term .
+
+    $default  reduce using rule 1 (program)
