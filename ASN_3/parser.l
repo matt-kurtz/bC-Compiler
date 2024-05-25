@@ -29,10 +29,22 @@ int setValue(int linenum, int tokenClass, char *svalue) {
     case NUMCONST:
          //yylval.tinfo.nvalue = 
          break;
-
+    case CHARCONST:
+         if (svalue[1] == '\\') {
+            switch (svalue[2]) {
+               case 'n': yylval.tinfo->cvalue = '\n'; break;
+	    }
+	 }
+         else {
+	    yylval.tinfo->cvalue = lastToken[1];
+	 }
+	 break;
     //case OP:
          // yylval.tinfo.cvalue = hmmm..... What should I set it to?
          //break;
+    case BOOLCONST:
+	 yylval.tinfo->nvalue = ((lastToken[0] == 't' ? 1 : 0));
+	 break;
     }
 
 
@@ -121,6 +133,7 @@ whitespace  [\ \t]
 
 "//".*        ;
 
+
 [']\\?.[']     { return setValue(line, CHARCONST, yytext); }
 
 ["](\\[^\n]|[^\"\\\n])*["] { return setValue(line, STRINGCONST, yytext); }
@@ -129,6 +142,7 @@ whitespace  [\ \t]
 
 [0-9]+         { return setValue(line, NUMCONST, yytext); }
 \n             {  line++; }
+"//".*\n       {  line++; }
 {whitespace}+  ;
 .              { printf("ERROR(%d): Token error, invalid or misplaced input character: \'%c\'. Character Ignored.\n", line, yytext[0]);}
 

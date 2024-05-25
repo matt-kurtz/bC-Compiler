@@ -1,6 +1,11 @@
 Terminals unused in grammar
 
+   FIRSTOP
    ERROR
+   SIZEOF
+   CHSIGN
+   LASTOP
+   LASTTERM
 
 
 State 0 conflicts: 1 shift/reduce
@@ -194,143 +199,148 @@ $end (0) 0
 '{' (123) 49
 '}' (125) 49
 error (256)
-NEQ (258) 79
-EQ (259) 78
-LEQ (260) 74
-GEQ (261) 77
-AND (262) 68
-OR (263) 66
-NOT (264) 70
-PRECOMPILER (265) 2 3
-NUMCONST (266) 17 110
-CHARCONST (267) 111
-STRINGCONST (268) 112
-BOOLCONST (269) 113
-ERROR (270)
-ID (271) 16 17 21 22 30 31 36 46 100 101 105
-IF (272) 34 43 44
-THEN (273) 34 43 44
-ELSE (274) 34 44
-INT (275) 18
-CHAR (276) 20
-BOOL (277) 19
-DEC (278) 59
-INC (279) 58
-WHILE (280) 35 45
-FOR (281) 36 46
-TO (282) 41 42
-BY (283) 42
-DO (284) 35 36 45 46
-RETURN (285) 54 55
-BREAK (286) 56
-STATIC (287) 10
-MIN (288) 83
-MAX (289) 82
-MULASS (290) 64
-DIVASS (291) 65
-ADDASS (292) 62
-SUBASS (293) 63
+FIRSTOP (258)
+NEQ (259) 79
+EQ (260) 78
+LEQ (261) 74
+GEQ (262) 77
+AND (263) 68
+OR (264) 66
+NOT (265) 70
+PRECOMPILER (266) 2 3
+NUMCONST (267) 17 110
+CHARCONST (268) 111
+STRINGCONST (269) 112
+BOOLCONST (270) 113
+ERROR (271)
+ID (272) 16 17 21 22 30 31 36 46 100 101 105
+IF (273) 34 43 44
+THEN (274) 34 43 44
+ELSE (275) 34 44
+INT (276) 18
+CHAR (277) 20
+BOOL (278) 19
+DEC (279) 59
+INC (280) 58
+WHILE (281) 35 45
+FOR (282) 36 46
+TO (283) 41 42
+BY (284) 42
+DO (285) 35 36 45 46
+RETURN (286) 54 55
+BREAK (287) 56
+STATIC (288) 10
+MIN (289) 83
+MAX (290) 82
+MULASS (291) 64
+DIVASS (292) 65
+ADDASS (293) 62
+SUBASS (294) 63
+SIZEOF (295)
+CHSIGN (296)
+LASTOP (297)
+LASTTERM (298)
 
 
 Nonterminals, with rules where they appear
 
-$accept (57)
+$accept (62)
     on left: 0
-program (58)
+program (63)
     on left: 1, on right: 0
-precomList (59)
+precomList (64)
     on left: 2 3 4, on right: 1 2
-declList (60)
+declList (65)
     on left: 5 6, on right: 1 5
-decl (61)
+decl (66)
     on left: 7 8, on right: 5 6
-varDecl (62)
+varDecl (67)
     on left: 9, on right: 7
-scopedVarDecl (63)
+scopedVarDecl (68)
     on left: 10 11, on right: 50
-varDeclList (64)
+varDeclList (69)
     on left: 12 13, on right: 9 10 11 12
-varDeclInit (65)
+varDeclInit (70)
     on left: 14 15, on right: 12 13
-varDeclId (66)
+varDeclId (71)
     on left: 16 17, on right: 14 15
-typeSpec (67)
+typeSpec (72)
     on left: 18 19 20, on right: 9 10 11 21 27
-funDecl (68)
+funDecl (73)
     on left: 21 22, on right: 8
-parms (69)
+parms (74)
     on left: 23 24, on right: 21 22
-parmList (70)
+parmList (75)
     on left: 25 26, on right: 23 25
-parmTypeList (71)
+parmTypeList (76)
     on left: 27, on right: 25 26
-parmIdList (72)
+parmIdList (77)
     on left: 28 29, on right: 27 28
-parmId (73)
+parmId (78)
     on left: 30 31, on right: 28 29
-stmt (74)
+stmt (79)
     on left: 32 33, on right: 21 22 43 52
-matched (75)
+matched (80)
     on left: 34 35 36 37 38 39 40, on right: 32 34 35 36 44
-iterRange (76)
+iterRange (81)
     on left: 41 42, on right: 36 46
-unmatched (77)
+unmatched (82)
     on left: 43 44 45 46, on right: 33 44 45 46
-expStmt (78)
+expStmt (83)
     on left: 47 48, on right: 37
-compoundStmt (79)
+compoundStmt (84)
     on left: 49, on right: 38
-localDecls (80)
+localDecls (85)
     on left: 50 51, on right: 49 50
-stmtList (81)
+stmtList (86)
     on left: 52 53, on right: 49 52
-returnStmt (82)
+returnStmt (87)
     on left: 54 55, on right: 39
-breakStmt (83)
+breakStmt (88)
     on left: 56, on right: 40
-exp (84)
+exp (89)
     on left: 57 58 59 60, on right: 47 55 57 101 102 108 109
-assignop (85)
+assignop (90)
     on left: 61 62 63 64 65, on right: 57
-simpleExp (86)
+simpleExp (91)
     on left: 66 67, on right: 15 34 35 41 42 43 44 45 60 66
-andExp (87)
+andExp (92)
     on left: 68 69, on right: 66 67 68
-unaryRelExp (88)
+unaryRelExp (93)
     on left: 70 71, on right: 68 69 70
-relExp (89)
+relExp (94)
     on left: 72 73, on right: 71
-relop (90)
+relop (95)
     on left: 74 75 76 77 78 79, on right: 72
-minmaxExp (91)
+minmaxExp (96)
     on left: 80 81, on right: 72 73 80
-minmaxop (92)
+minmaxop (97)
     on left: 82 83, on right: 80
-sumExp (93)
+sumExp (98)
     on left: 84 85, on right: 80 81 84
-sumop (94)
+sumop (99)
     on left: 86 87, on right: 84
-mulExp (95)
+mulExp (100)
     on left: 88 89, on right: 84 85 88
-mulop (96)
+mulop (101)
     on left: 90 91 92, on right: 88
-unaryExp (97)
+unaryExp (102)
     on left: 93 94, on right: 88 89 93
-unaryop (98)
+unaryop (103)
     on left: 95 96 97, on right: 93
-factor (99)
+factor (104)
     on left: 98 99, on right: 94
-mutable (100)
+mutable (105)
     on left: 100 101, on right: 57 58 59 99
-immutable (101)
+immutable (106)
     on left: 102 103 104, on right: 98
-call (102)
+call (107)
     on left: 105, on right: 103
-args (103)
+args (108)
     on left: 106 107, on right: 105
-argList (104)
+argList (109)
     on left: 108 109, on right: 106 108
-constant (105)
+constant (110)
     on left: 110 111 112 113, on right: 104
 
 

@@ -1,5 +1,6 @@
 #include "treeUtils.h"
 #include <string.h>
+#include "parser.tab.h" // included this so I can have the switch/case in the newExpNode func
 
 char expTypeToStrBuffer[80];
 char *expTypeToStr(ExpType type, bool isArray, bool isStatic)
@@ -103,10 +104,38 @@ TreeNode *newExpNode(ExpKind kind, TokenData *token, TreeNode *c0, TreeNode *c1,
    TreeNode *newNode = newNodeFun(c0, c1, c2, token);
    newNode->nodekind = ExpK;
    newNode->kind.exp = kind;
+   if (kind == OpK) { // Added this
+      switch (token->tokenclass) {
+         case SIZEOF:
+            newNode->attr.name = (char *)"sizeof";
+ 	    break;
+         case CHSIGN:
+	    newNode->attr.name = (char *)"chsign";
+	    break; 
+      }
+   } // Ended here 
    if (kind == ConstantK) {
-      newNode->attr.value = token->nvalue;
+      switch (token->tokenclass) {
+         case NUMCONST:
+            newNode->type = Integer;
+            //printf("token->nvalue is: %d", token->nvalue);
+	    newNode->attr.value = token->nvalue;
+	    break;
+         case STRINGCONST:
+            newNode->type = Char;
+            newNode->attr.string = strdup(token->svalue);
+            newNode->isArray = true; // Char array technically
+	    break;
+	 case BOOLCONST:
+	    newNode->type = Boolean;
+	    newNode->attr.value = token->nvalue;
+	    break;
+	 case CHARCONST:
+	    newNode->type = Char;
+	    newNode->attr.cvalue = token->cvalue;
+	    break;
+      }
    } 
-   
    return newNode;
 }
 
@@ -117,8 +146,7 @@ static void printSpaces(FILE *listing, int depth)
 
 void printTreeNode(FILE *listing,
                    TreeNode *tree)
-{
-   
+{ 
    
    if (tree->nodekind == DeclK) {
       //fprintf(listing, "I am a DeclK node!");
@@ -127,6 +155,7 @@ void printTreeNode(FILE *listing,
 	    fprintf(listing, "Var: %s of %s", tree->attr.name, expTypeToStr(tree->type, tree->isArray, tree->isStatic));
             break;
          case ParamK:
+	    fprintf(listing, "Parm: %s of %s", tree->attr.name, expTypeToStr(tree->type, tree->isArray, tree->isStatic));
             break;
          case FuncK:
             fprintf(listing, "Func: %s returns %s", tree->attr.name, expTypeToStr(tree->type, tree->isArray, tree->isStatic));
@@ -162,7 +191,7 @@ void printTreeNode(FILE *listing,
       //fprintf(listing, "I'm an ExpK node");
       switch(tree->kind.exp) {
          case OpK:
-            fprintf(listing, "Var");
+            fprintf(listing, "Op: %s", tree->attr.name);
             break;
          case AssignK:
             fprintf(listing, "Assign: %s", tree->attr.name);
@@ -172,9 +201,35 @@ void printTreeNode(FILE *listing,
 	    fprintf(listing, "Id: %s", tree->attr.name);
 	    break;
 	 case ConstantK:
-	    fprintf(listing, "Const %d", tree->attr.value);
-	    break;
+	    switch(tree->type) {
+	       case Integer:   
+                  fprintf(listing, "Const %d", tree->attr.value);
+	          break;
+	       case Char:
+                  if (tree->isArray) { fprintf(listing, "Const %s", tree->attr.string); }
+		  else {fprintf(listing, "Const \'%c\'", tree->attr.cvalue);}
+		  break;
+	       case Boolean:
+		  //fprintf(listing, "Bool value is: %i", tree->attr.value);
+		  if (tree->attr.value == 0) {
+                     fprintf(listing, "Const false");
+                  }
+		  else {
+		     fprintf(listing, "Const true");
+                  }
+		  break;
+	       case UndefinedType:
+		  fprintf(listing, "Undefined type");
+		  break;
+               case Void:
+		  fprintf(listing, "Void");
+		  break;
+	       default:
+		  fprintf(listing, "Didn't pick anything up...");
+	     }
+	     break;
 	 case CallK:
+	    fprintf(listing, "Call: %s", tree->attr.name);
 	    break;
          default:
 	    fprintf(listing, "Default");

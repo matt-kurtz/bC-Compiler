@@ -45,42 +45,47 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    NEQ = 258,
-    EQ = 259,
-    LEQ = 260,
-    GEQ = 261,
-    AND = 262,
-    OR = 263,
-    NOT = 264,
-    PRECOMPILER = 265,
-    NUMCONST = 266,
-    CHARCONST = 267,
-    STRINGCONST = 268,
-    BOOLCONST = 269,
-    ERROR = 270,
-    ID = 271,
-    IF = 272,
-    THEN = 273,
-    ELSE = 274,
-    INT = 275,
-    CHAR = 276,
-    BOOL = 277,
-    DEC = 278,
-    INC = 279,
-    WHILE = 280,
-    FOR = 281,
-    TO = 282,
-    BY = 283,
-    DO = 284,
-    RETURN = 285,
-    BREAK = 286,
-    STATIC = 287,
-    MIN = 288,
-    MAX = 289,
-    MULASS = 290,
-    DIVASS = 291,
-    ADDASS = 292,
-    SUBASS = 293
+    FIRSTOP = 258,
+    NEQ = 259,
+    EQ = 260,
+    LEQ = 261,
+    GEQ = 262,
+    AND = 263,
+    OR = 264,
+    NOT = 265,
+    PRECOMPILER = 266,
+    NUMCONST = 267,
+    CHARCONST = 268,
+    STRINGCONST = 269,
+    BOOLCONST = 270,
+    ERROR = 271,
+    ID = 272,
+    IF = 273,
+    THEN = 274,
+    ELSE = 275,
+    INT = 276,
+    CHAR = 277,
+    BOOL = 278,
+    DEC = 279,
+    INC = 280,
+    WHILE = 281,
+    FOR = 282,
+    TO = 283,
+    BY = 284,
+    DO = 285,
+    RETURN = 286,
+    BREAK = 287,
+    STATIC = 288,
+    MIN = 289,
+    MAX = 290,
+    MULASS = 291,
+    DIVASS = 292,
+    ADDASS = 293,
+    SUBASS = 294,
+    SIZEOF = 295,
+    CHSIGN = 296,
+    LASTOP = 297,
+    LASTTERM = 298
   };
 #endif
 
@@ -89,13 +94,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 59 "parser.y" /* yacc.c:1909  */
+#line 60 "parser.y" /* yacc.c:1909  */
 
    TokenData *tinfo;
    TreeNode *tree;
    ExpType type;
 
-#line 99 "parser.tab.h" /* yacc.c:1909  */
+#line 104 "parser.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

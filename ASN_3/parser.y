@@ -18,6 +18,7 @@ extern int line;
 
 TreeNode *addSibling(TreeNode *t, TreeNode *s) {
    TreeNode *newNode;
+   //printf("t is: %s", t->attr.string);
    if (s == NULL) {
       printf("Stop! S can't be null");
       exit(1);
@@ -61,6 +62,7 @@ void printDebug(const char *msg) {
    TreeNode *tree;
    ExpType type;
 }
+%token   <tinfo> FIRSTOP
 %token   <tinfo>  '*' '+' '-' '/' '<' '=' '>' '%' '?' '(' ')' ',' ';' '[' '{' '}' ']' ':'
 %token   <tinfo>  NEQ EQ LEQ GEQ
 %token   <tinfo>  AND OR NOT
@@ -77,12 +79,17 @@ void printDebug(const char *msg) {
 %token   <tinfo> STATIC
 %token   <tinfo> MIN MAX
 %token   <tinfo> MULASS DIVASS ADDASS SUBASS
-%type <tree>  program
-%type <tree> precomList declList decl localDecls stmtList funDecl varDecl compoundStmt stmt matched unmatched expStmt returnStmt breakStmt exp simpleExp andExp unaryRelExp relExp parms parmList parmTypeList varDeclList varDeclInit varDeclId minmaxExp sumExp constant scopedVarDecl
-%type <tree> mutable
-
+%token   <tinfo> SIZEOF CHSIGN
+%token   <tinfo> LASTOP
 %type <tinfo> relop minmaxop sumop mulop unaryop assignop
+%type <tree>  program
+%type <tree> precomList declList decl localDecls stmtList funDecl varDecl compoundStmt stmt matched unmatched expStmt returnStmt breakStmt exp simpleExp andExp unaryRelExp relExp parms parmList parmTypeList varDeclList varDeclInit varDeclId minmaxExp sumExp constant scopedVarDecl mulExp unaryExp
+%type <tree> mutable immutable factor call parmIdList parmId iterRange argList args
+
 %type <type> typeSpec
+
+
+%token <tinfo> LASTTERM
 %%
 program    : precomList declList                    {syntaxTree = $2; }
            ;
@@ -104,21 +111,21 @@ varDecl    : typeSpec varDeclList ';'               {/* DRBC Note: Be careful! A
            ;
 
 
-scopedVarDecl : STATIC typeSpec varDeclList ';'     {/* DRBC Note: Be careful! And setType.*/}
+scopedVarDecl : STATIC typeSpec varDeclList ';'     {/* DRBC Note: Be careful! And setType.*/ $$ = $3; setType($3, $2, 1);}
                 | typeSpec varDeclList ';'             {/* DRBC Note: Be careful! And setType.*/ $$ = $2; setType($2, $1, 0); /* IF SEGFAULTS, DELETE THIS */}
               ;
 
 
-varDeclList  : varDeclList ',' varDeclInit          {/* addSibling */  $$ = addSibling($$, $3);}
+varDeclList  : varDeclList ',' varDeclInit          {/* addSibling */ $$ = addSibling($1, $3); /*Changed this */}
                | varDeclInit                        { $$ = $1; }
              ;
 
 varDeclInit  : varDeclId				{ $$ = $1; }
-               | varDeclId ':' simpleExp               {/* DRBC Note: $$ = $1; if ($$ != NULL) $$->child[0] = $3; */ $$ = $1; if ($$ != NULL) $$->child[0] = $3; }
+               | varDeclId ':' simpleExp               { $$ = $1; if ($$ != NULL) $$->child[0] = $3; }
              ;
 
-varDeclId   : ID                                         {/* newDeclNode */ $$ = newDeclNode(VarK, Void, $1); /* IF SEGFAULT, DELETE THIS */}
-             | ID '[' NUMCONST ']'                         {/* newDeclNode  $$ = newDeclNode(VarK, Void, $1); $$->isArray = true; */ }
+varDeclId   : ID                                         {/* newDeclNode */ $$ = newDeclNode(VarK, UndefinedType, $1); /* IF SEGFAULT, DELETE THIS */}
+             | ID '[' NUMCONST ']'                         {  $$ = newDeclNode(VarK, UndefinedType, $1); $$->isArray = true; $$->size = $3->nvalue + 1; }
              ;
 
 typeSpec   : INT                                        { $$ = Integer;}
@@ -134,19 +141,19 @@ parms      : parmList 					{ $$ = $1; }
              | /* empty */                                { $$ = NULL;}
            ;
 
-parmList   : parmList ';' parmTypeList              {/* addSibling */}
-             | parmTypeList
+parmList   : parmList ';' parmTypeList              {/* addSibling */ $$ = addSibling($1, $3); }
+             | parmTypeList				{$$ = $1; }
            ;
 
-parmTypeList : typeSpec parmIdList                  {/* DRBC Note: Be careful! And setType.*/}
+parmTypeList : typeSpec parmIdList                  {/* DRBC Note: Be careful! And setType.*/ $$ = $2; setType($2, $1, 0);}
              ;
 
-parmIdList   : parmIdList ',' parmId                 {/* addSibling*/}
-             | parmId
+parmIdList   : parmIdList ',' parmId                 {/* addSibling*/ $$ = addSibling($1, $3); }
+             | parmId					{$$ = $1;}
              ;
 
-parmId     : ID                                          {/* newDeclNode*/}
-             | ID '[' ']'                                   {/* newDeclNode*/}
+parmId     : ID                                          {/* newDeclNode*/ $$ = newDeclNode(ParamK, UndefinedType, $1);}
+             | ID '[' ']'                                   {/* newDeclNode*/ $$ = newDeclNode(ParamK, UndefinedType, $1); $$->isArray = true; }
            ;
 
 stmt       : matched						{$$ = $1;}
@@ -154,23 +161,23 @@ stmt       : matched						{$$ = $1;}
            ;
 
 
-matched    : IF simpleExp THEN matched ELSE matched   {/* newStmtNode*/}
-             | WHILE simpleExp DO matched                  {/* newStmtNode*/}
-             | FOR ID '=' iterRange DO matched             {/* newStmtNode(newDeclNode)*/}
+matched    : IF simpleExp THEN matched ELSE matched   {/* newStmtNode*/ $$ = newStmtNode(IfK, $1, $2, $4, $6); }
+             | WHILE simpleExp DO matched                  {/* newStmtNode*/ $$ = newStmtNode(WhileK, $1, $2, $4); }
+             | FOR ID '=' iterRange DO matched             {/* newStmtNode(newDeclNode)*/ TreeNode *tmp = newDeclNode(VarK, Integer, $2); $$ = newStmtNode(ForK, $1, tmp, $4, $6); }
              | expStmt 						{$$ = $1;}
              | compoundStmt					{$$ = $1;}
              | returnStmt					{$$ = $1;}
              | breakStmt					{$$ = $1;}
            ;
 
-iterRange  : simpleExp TO simpleExp                  {/* newStmtNode*/}
-             | simpleExp TO simpleExp BY simpleExp    {/* newStmtNode*/}
+iterRange  : simpleExp TO simpleExp                  {/* newStmtNode*/ $$ = newStmtNode(RangeK, $2, $1, $3); }
+             | simpleExp TO simpleExp BY simpleExp    {/* newStmtNode*/ $$ = newStmtNode(RangeK, $2, $1, $3, $5);}
            ;
 
-unmatched  : IF simpleExp THEN stmt                     {/* newStmtNode*/}
-             | IF simpleExp THEN matched ELSE unmatched  {/* newStmtNode*/}
-             | WHILE simpleExp DO unmatched                {/* newStmtNode*/}
-             | FOR ID '=' iterRange DO unmatched           {/* newStmtNode(newDeclNode)*/}
+unmatched  : IF simpleExp THEN stmt                     {/* newStmtNode*/ $$ = newStmtNode(IfK, $1, $2, $4); }
+             | IF simpleExp THEN matched ELSE unmatched  {/* newStmtNode*/ $$ = newStmtNode(IfK, $1, $2, $4, $6); }
+             | WHILE simpleExp DO unmatched                {/* newStmtNode*/ $$ = newStmtNode(WhileK, $1, $2, $4); }
+             | FOR ID '=' iterRange DO unmatched           {/* newStmtNode(newDeclNode)*/ TreeNode *tmp = newDeclNode(VarK, Integer, $2); $$ = newStmtNode(ForK, $1, tmp, $4, $6); }
            ;
 
 expStmt    : exp ';' 						{$$ = $1;}
@@ -180,24 +187,24 @@ expStmt    : exp ';' 						{$$ = $1;}
 compoundStmt : '{' localDecls stmtList '}'         {/* newStmtNode*/ $$ = newStmtNode(CompoundK, $1, $2, $3);}
              ;
 
-localDecls : localDecls scopedVarDecl              {/* addSibling*/ $$ = addSibling($1, $2);}
+localDecls : localDecls scopedVarDecl              {/* addSibling*/ if ($2 != NULL) {$$ = addSibling($1, $2);}}
              | /* empty */                               { $$ = NULL; printDebug("localDecls empty");}
              ;
 
-stmtList   : stmtList stmt                         {/* addSibling*/ $$ = addSibling($1, $2);}
+stmtList   : stmtList stmt                         {/* addSibling*/ printDebug("stmtList stmt"); if ($2 != NULL) { $$ = addSibling($1, $2);} /*else printf("$2 is NULL");*/}
              | /* empty */                               { $$ = NULL; printDebug("stmtList  empty");}
            ;
 
-returnStmt : RETURN ';'                                {/* newStmtNode*/}
-             | RETURN exp ';'                           {/* newStmtNode*/}
+returnStmt : RETURN ';'                                {/* newStmtNode*/ $$ = newStmtNode(ReturnK, $1); }
+             | RETURN exp ';'                           {/* newStmtNode*/ $$ = newStmtNode(ReturnK, $1, $2); }
            ;
 
-breakStmt  : BREAK ';'                                 {/* newStmtNode*/}
+breakStmt  : BREAK ';'                                 {/* newStmtNode*/ $$ = newStmtNode(BreakK, $1); }
            ;
 
 exp        : mutable assignop exp                {/* newExpNode*/  $$ = newExpNode(AssignK, $2, $1, $3); printDebug("In the exp rule");}
-             | mutable INC                              {/* newExpNode*/}
-             | mutable DEC                              {/* newExpNode*/}
+             | mutable INC                              {/* newExpNode*/ $$ = newExpNode(AssignK, $2, $1); }
+             | mutable DEC                              {/* newExpNode*/ $$ = newExpNode(AssignK, $2, $1); }
              | simpleExp				{ $$ = $1; }
            ;
 
@@ -220,81 +227,81 @@ unaryRelExp : NOT unaryRelExp                      {$$ = newExpNode(OpK, $1, $2)
               | relExp					{$$ = $1;}
             ;
 
-relExp     : minmaxExp relop minmaxExp          {/* newExpNode*/ $$ = newExpNode(AssignK, $2, $1, $3);  /* IF SEGFAULT, $$ = NULL; */}
+relExp     : minmaxExp relop minmaxExp          {/* newExpNode*/ $$ = newExpNode(OpK, $2, $1, $3);  /* IF SEGFAULT, $$ = NULL; */}
              | minmaxExp			{ /* $$ = $1; */ $$ = $1;  /* IF SEGFAULT, $$ = NULL; */}
            ;
 
-relop      : LEQ
-             | '<'
-             | '>'
-             | GEQ
-             | EQ
-             | NEQ
+relop      : LEQ				{ $$ = $1; }
+             | '<'				{ $$ = $1; }
+             | '>'				{ $$ = $1; }
+             | GEQ				{ $$ = $1; }
+             | EQ				{ $$ = $1; }
+             | NEQ				{ $$ = $1; }
            ;
 
-minmaxExp  : minmaxExp minmaxop sumExp              {/* newExpNode*/  $$ = newExpNode(AssignK, $2, $1, $3);  /* IF SEGFAULT, CLEAR THIS */}
+minmaxExp  : minmaxExp minmaxop sumExp              {/* newExpNode*/  $$ = newExpNode(OpK, $2, $1, $3);  /* IF SEGFAULT, CLEAR THIS */}
              | sumExp 					{ $$ = $1; /* IF SEGFAULT, CLEAR THIS */}
            ;
 
-minmaxop   : MAX
-             | MIN
+minmaxop   : MAX				{ $$ = $1; }
+             | MIN				{ $$ = $1; }
            ;
 
-sumExp     : sumExp sumop mulExp              {/* newExpNode*/}
-             | mulExp
+sumExp     : sumExp sumop mulExp              {/* newExpNode*/ $$ = newExpNode(OpK, $2, $1, $3); }
+             | mulExp				{ $$ = $1; }
            ;
 
-sumop      : '+'
-             | '-'
+sumop      : '+'				{ $$ = $1; }
+             | '-'				{ $$ = $1; }
            ;
 
-mulExp     : mulExp mulop unaryExp           {/* newExpNode*/}
-             | unaryExp
+mulExp     : mulExp mulop unaryExp           {/* newExpNode*/ $$ = newExpNode(OpK, $2, $1, $3); }
+             | unaryExp				{ $$ = $1; }
            ;
 
-mulop      : '*'
-             | '/'
-             | '%'
+mulop      : '*'				{ $$ = $1; }
+             | '/'				{ $$ = $1; }
+             | '%'				{ $$ = $1; }
            ;
 
-unaryExp   : unaryop unaryExp                   {/* newExpNode*/}
-             | factor
+unaryExp   : unaryop unaryExp                   {/* newExpNode*/ $$ = newExpNode(OpK, $1, $2); }
+             | factor				{ $$ = $1; }
            ;
 
-unaryop    : '-'                                     {/* newExpNode*/}
-             | '*'                                      {/* newExpNode*/}
-             | '?'                                      {/* newExpNode*/}
-             ;
+unaryop    : '-'                                     { /* newExpNode Is this wrong??? $$ = newExpNode(OpK, $1); */ $1->tokenclass = CHSIGN; $$ = $1; }
+             | '*'                                      {/* newExpNode Is this wrong??? $$ = newExpNode(OpK, $1); */ $1->tokenclass = SIZEOF; $$ = $1; }
+             | '?'                                      { /* newExpNode Is this wrong??? $$ = newExpNode(OpK, $1); */ $$ = $1; }
+             
            ;
 
-factor     : immutable
-             | mutable
+factor     : immutable					{ $$ = $1; }
+             | mutable					{ $$ = $1; }
            ;
 
 mutable    : ID                                       {/* newExpNode*/ $$ = newExpNode(IdK, $1);}
-             | ID '[' exp ']'                          {/* newExpNode*/}
+             | ID '[' exp ']'                          {/* newExpNode*/ TreeNode *tmp = newExpNode(IdK, $1); $$ = newExpNode(OpK, $2, tmp, $3); /* This is probably wrong */ }
            ;
 
-immutable  : '(' exp ')'                            {/* DRBC Note: Be careful!*/}
-             | call
-             | constant
+immutable  : '(' exp ')'                            {/* DRBC Note: Be careful!*/ $$ = $2; }
+             | call					{ $$ = $1; }
+             | constant					{ $$ = $1; }
            ;
 
-call       : ID '(' args ')'                        {/*newExpNode*/}
+call       : ID '(' args ')'                        {/*newExpNode*/ $$ = newExpNode(CallK, $1, $3); }
            ;
 
-args       : argList
-             | /* empty */                                { /* NULL;*/}
+args       : argList					{ $$ = $1; }
+             | /* empty */                                { /* NULL;*/ $$ = NULL; }
            ;
 
-argList    : argList ',' exp                       {/* addSibling*/}
-             | exp
+argList    : argList ',' exp                       {/* addSibling*/ if ($3 != NULL) {$$ = addSibling($1, $3); }}
+             | exp					{ $$ = $1; }
            ;
 
 constant   : NUMCONST                                   {/* newExpNode*/ $$ = newExpNode(ConstantK, $1);}
-             | CHARCONST                                   {/* newExpNode*/}
-             | STRINGCONST                                 {/* newExpNode*/}
-             | BOOLCONST                                   {/* newExpNode*/}
+             | CHARCONST                                   {/* newExpNode*/ $$ = newExpNode(ConstantK, $1);}
+             | STRINGCONST                                 {/* newExpNode*/ $$ = newExpNode(ConstantK, $1);}
+             | BOOLCONST                                   {/* newExpNode*/ $$ = newExpNode(ConstantK, $1);}
            ;
 
 %%
